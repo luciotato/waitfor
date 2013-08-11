@@ -1,14 +1,33 @@
-WARNING - VERSION 0 - NOT WORKING! ...YET
+VERSION 0.5 
 --
 
 Wait.for
 =======
+Simplest abstraction over Fibers.
 
-Wait.for function based on node fibers - wait for future result / promise
+Take any async function (with callbackFn(err,data) as last parameter) 
+and callit in SYNC mode, waiting for results, returning "data" and, if err, throw err.
 
 Advantages:
 * Avoid callback hell / pyramid of doom
-* simpler, sequential programming, without blocking node's event loop (thanks to fibers)
+* Simpler, sequential programming, without blocking node's event loop (thanks to fibers)
+* Simpler, try-cath exception programming. if err, throw err, else return data.
+* No multithread debugging nightmares, only one fiber running at a given time (thanks to fibers)
+* Plays along with node cluster. You design for on thread/processor, then scale with cluster.
+
+
+TO DO:
+--
+- support wait.for (object.method, arg...) with the right value for "this"
+- ( actualliy this=null for wait.launch and wait.for )
+
+Usage: 
+-
+
+   wait.launch(my_seq_function, args...) - launch a new fiber
+
+   wait.for(any_async_function, args,...)  - call async function, wait for result, return data.
+   
 
 Examples:
 -
@@ -23,10 +42,14 @@ pure node.js:
 
 using Wait.for:
 
-	var Wait=require('waitfor');
+	var wait=require('waitfor');
+	console.log(wait.for(fd.readfile,'/etc/passwd'));
 
-	var data = Wait.for(fd.readfile,'/etc/passwd');
-	console.log(data);
+
+What if... Fibers and WaitFor where part of node core?
+-
+then you can deprecate almost half the functions at: http://nodejs.org/api/fs.html
+(a clue: the *Sync* versions)
 
 
 DNS example
@@ -34,39 +57,31 @@ DNS example
 
 pure node.js:
 
-	var sys = require("sys"), dns = require("dns");
+	var dns = require("dns");
 
-	dns.resolve4("google.com", function(err, addresses) {
+	dns.resolve4("google.com", function(err, data) {
 		if (err) throw err;
-		sys.puts("addresses: " + JSON.stringify(addresses));
+		console.log("addresses: " + JSON.stringify(data));
 		for (var i = 0; i < addresses.length; i++) {
 			var a = addresses[i];
-			dns.reverse(a, function (err, domains) {
-				if (err) {
-					sys.puts("reverse for " + a + " failed: " + err.message);
-				} else {
-					sys.puts("reverse for " + a + ": " + JSON.stringify(domains));
-				}
-    		});
-  		}
+			dns.reverse(a, function (err, data) {
+				if (err) throw err;
+				console.log("reverse for " + a + ": " + JSON.stringify(data));
+				});
+    		};
  	});
 
 
 using Wait.for:
 
-	var sys = require("sys"), dns = require("dns"), Wait=require('waitfor');
+	var dns = require("dns"), wait=require('waitfor');
 	
-	try{
-		var addresses = Wait.for(dns.resolve4,"google.com");
-		sys.puts("addresses: " + JSON.stringify(addresses));
-		for (var i = 0; i < addresses.length; i++) {
-			var a = addresses[i];
-			var domains = Wait.for(dns.reverse,a);
-			sys.puts("reverse for " + a + ": " + JSON.stringify(domains));
-   		};
-	} 
-	catch(e){
-		sys.puts("Error: " + e.message);
-	};
+	var addresses = wait.for(dns.resolve4,"google.com");
+	console.log("addresses: " + JSON.stringify(addresses));
+	for (var i = 0; i < addresses.length; i++) {
+		var a = addresses[i];
+		console.log("reverse for " + a + ": " + JSON.stringify(wait.for(dns.reverse,a)));
+   	};
 
 
+see tests.js for more examples.
