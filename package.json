@@ -1,11 +1,18 @@
 {
   "name": "waitfor"
-  "version": "0.5",
-	"description": "Sequetial programming for node.js",
-	"keywords": [
-		"fiber", "fibers", "coroutine", "thread", "sycn", "async"
-    , "parallel", "worker", "future", "promise"
-    ,"wait","Wait.for"],
+  ,"version": "0.5"
+  ,"description": "Sequetial programming for node.js"
+  
+  ,"author": {
+    "name": "Lucio Tato"
+    ,"email": "luciotato@gmail.com"
+    ,"url":"http://github.com/luciotato"
+  }
+  ,"keywords": [
+    "fiber", "fibers", "coroutine", "thread", "sycn", "async"
+    ,"parallel", "worker", "future", "promise"
+    ,"wait","Wait.for" ]
+    
   ,"homepage": "http://github.com/luciotato/waitfor"
   ,"license" : "Creative Commons, MIT"
   ,"bugs": "http://github.com/luciotato/waitfor/issues"
@@ -13,14 +20,12 @@
     "type": "git"
     ,"url": "git://github.com/luciotato/waitfor.git"
   }
-  ,"author": {
-    "name": "Lucio Tato"
-    ,"email": "luciotato@gmail.com"
-    ,"url":"http://github.com/luciotato"
-  }
   ,"main": "waitfor.js"
-  , "engines": {
-		"node": ">=0.5.2"
+  , "engines": { 
+  	"node": ">=0.5.2" 
+  	}
+  ,"devDependencies": {
+	"fibers": ">=1.0.1"
 	}
  ,"scripts": {
     "test": "node tests"
