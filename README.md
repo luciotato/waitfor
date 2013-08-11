@@ -10,10 +10,13 @@ and callit in SYNC mode, waiting for results, returning "data" and, if err, thro
 
 Advantages:
 * Avoid callback hell / pyramid of doom
-* Simpler, sequential programming, without blocking node's event loop (thanks to fibers)
-* Simpler, try-cath exception programming. if err, throw err, else return data.
+* Simpler, sequential programming wher requierd, without blocking node's event loop (thanks to fibers)
+* Simpler, try-cath exception programming. (default callback handler is: if (err) throw err; else return data)
+* You can also launch multiple parallel non-concurrent fibers.
 * No multithread debugging nightmares, only one fiber running at a given time (thanks to fibers)
-* Plays along with node cluster. You design for on thread/processor, then scale with cluster.
+* Can use any node-standard async libs and functions with callback(err,data) as last parameter.
+* Plays along with node programming style, you continue designing your async functions with callback(err,data), but you can use them in sequetial mode when required.
+* Plays along with node cluster. You design for on thread/processor, then scale with cluster on multicores.
 
 
 TO DO:
@@ -24,11 +27,19 @@ TO DO:
 Usage: 
 -
 
-   wait.launch(my_seq_function, args...) - launch a new fiber
+	var wait=require('waitfor');
+	
+	// launch a new fiber
+	wait.launch(my_seq_function, arg,arg,...) 
 
-   wait.for(any_async_function, args,...)  - call async function, wait for result, return data.
-   
-
+	function my_seq_function(arg,arg...){
+	    // call async function, wait for result, get data.
+	    var result = wait.for(any_async_function, args,...)  
+	    // call another async function, wait for result, return data
+   	    var result2 = wait.for(another_async_function, result, args,...)  
+	}
+	
+	
 Examples:
 -
 
@@ -51,6 +62,58 @@ What if... Fibers and WaitFor where part of node core?
 then you can deprecate almost half the functions at: http://nodejs.org/api/fs.html
 (a clue: the *Sync* versions)
 
+
+Database example (pseudocode)
+--
+pure node.js:
+
+	function handleWithdrawal(req,res){  
+		try {
+			var amount=req.param("amount");
+			db.select("* from user where username=?",req.param("user"),function(err,userdata) {
+				if (err) throw err;
+				db.select("* from accounts where user_id=?",userdata.user_ID),function(err,accountdata) {
+					if (err) throw err;
+    					if (accountdata.balance < amount) throw new Err('insufficient funds');
+    					db.execute("withdrawal(?,?),accountdata.ID,req.param("amount"), function(err,data) {
+    						if (err) throw err;
+    						res.write("withdrawal OK, amount: "+ req.param("amount"));
+    						db.select("balance from accounts where account_id=?", accountdata.ID,function(err,balance) {
+    							if (err) throw err;
+    							res.end("your current balance is "  + balance.amount);
+    						});
+	    				});
+    				});
+    			});
+    		}
+    		catch(err) {
+    			res.end("Withdrawal error: "  + err.message);
+		}  
+
+Note: The above code, although it looks like will catch the exceptions, **it will not**. 
+Catching exceptions witch callback hell will add a lot of pain, and i'm not sure if you will have the 'res' parameter 
+to respond to the user. If somebody like to fix this example... be mi guest.
+
+
+with wait.for:
+
+	function handleWithdrawal(req,res){  
+		try {
+			var amount=req.param("amount");
+			userdata = wait.for(db.select("* from user where username=?",req.param("user")));
+			accountdata= wait.for(db.select("* from accounts where user_id=?",userdata.user_ID));
+			if (accountdata.balance < amount) throw new Err('insufficient funds');
+			wait.for(db.execute("withdrawal(?,?),accountdata.ID,req.param("amount")));
+			res.write("withdrawal OK, amount: "+ req.param("amount"));
+			balance=wait.for(db.select("balance from accounts where account_id=?", accountdata.ID));
+			res.end("your current balance is "  + balance.amount);
+    		}
+    		catch(err) {
+    			res.end("Withdrawal error: "  + err.message);
+		}  
+
+
+Note: Exceptions will be catched as expeceted.
 
 DNS example
 --
