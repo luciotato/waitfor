@@ -3,6 +3,7 @@
  - Copyright 2013 Lucio Tato
 */
 
+"use strict";
 var Fiber = require('fibers');
 
 var Wait = {
@@ -14,31 +15,55 @@ var Wait = {
         Fiber( function(){ fn.apply(null, newargs)} ).run(); //launch new fiber, call the fn with the args, this=null (strict)
     }
 
-    ,for: function(fn){ // wait.for
-
-        if (typeof fn !== 'function') throw new Error('first argument must be an async function');
+    ,applyAndWait: function(thisValue,fn,args){ // like js fn.apply, but wait for results
 
         var fiber=Fiber.current;
-        if (!fiber) throw new Error('Wait.for can only be called inside a fiber');
+        if (!fiber) throw new Error('wait.for can only be called inside a fiber');
 
         //create a closure to resume on callback
         var resumeCallback=function(err,data){
+                            fiber.callbackAlreadyCalled = true;
                             fiber.err=err; //store err on fiber object
                             fiber.data=data; //store data on fiber object
-                            fiber.run(); //resume fiber
+                            try { fiber.run(); }   //resume fiber
+                            catch(e){ // ignore error: "Fiber is already running" (when callback is called before async function returns)
+                                if (e.message === "This Fiber is already running") null;
+                                else throw new Error("calling function: "+fn.name+"\n"+e.message);
+                            }; 
                         };
 
-        var newargs=Array.prototype.slice.call(arguments,1); // remove function from args
-        newargs.push(resumeCallback);//add resumeCallback to arguments
+        args.push(resumeCallback);//add resumeCallback to arguments
 
-        fn.apply(null, newargs); //call async function (this=null)
+        fiber.callbackAlreadyCalled=false;
+        fn.apply(thisValue, args); //call async function/method
 
-        Fiber.yield(); //pause fiber, until callback => wait for results
+        if (!fiber.callbackAlreadyCalled) //except callback was called before async fn return
+            Fiber.yield(); //pause fiber, until callback => wait for results
 
         if (fiber.err) throw fiber.err; //auto throw on error
         return fiber.data; //return data on success
     }
 
+    ,for: function(fn){ // wait.for(fn,arg1,arg2,...)
+
+        if (typeof fn !== 'function') throw new Error('wait.for: first argument must be an async function');
+
+        var newargs=Array.prototype.slice.call(arguments,1); // remove function from args
+
+        return Wait.applyAndWait(null,fn,newargs); 
+    }
+
+    ,forMethod: function(obj,methodName){ // wait.forMethod(MyObj,'select',....)
+
+        if (typeof obj !== 'object') throw new Error('wait.forMethod: first argument must be an object');
+
+        var method=obj[methodName];
+        if (!method) throw new Error('wait.forMethod: second argument must be the async method name (string)');
+        
+        var newargs=Array.prototype.slice.call(arguments,2); // remove obj and method name from args
+        return Wait.applyAndWait(obj,method,newargs);
+    }
 };
+
 
 module.exports = Wait; //export
