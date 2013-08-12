@@ -1,7 +1,7 @@
 {
   "name": "waitfor"
-  ,"version": "0.5"
-  ,"description": "Sequetial programming for node.js"
+  ,"version": "0.6"
+  ,"description": "Sequential programming for node.js, end of callback hell"
   
   ,"author": {
     "name": "Lucio Tato"
@@ -11,7 +11,7 @@
   ,"keywords": [
     "fiber", "fibers", "coroutine", "thread", "sycn", "async"
     ,"parallel", "worker", "future", "promise"
-    ,"wait","Wait.for" ]
+    ,"wait","Wait.for","callback hell","piramyd of doom"]
     
   ,"homepage": "http://github.com/luciotato/waitfor"
   ,"license" : "Creative Commons, MIT"
