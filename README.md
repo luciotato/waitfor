@@ -1,14 +1,16 @@
 Wait.for
 =======
-Simple, straightforward abstraction over Fibers, end of callback hell.
+Sequential programming for node.js, end of callback hell.
 
-By using **wait.for**, you can call any nodejs standard async function in sequential/SYNC mode, waiting for result data, 
+Simple, straightforward abstraction over Fibers.
+
+By using **wait.for**, you can call any nodejs standard async function in sequential/Sync mode, waiting for result data, 
 without blocking node's event loop (thanks to fibers)
 
-A nodejs standard async function is a function in wich the last parameter is: callback function(err,data)
+A nodejs standard async function is a function in wich the last parameter is a callback: function(err,data)
 
 Advantages:
-* Avoid callback hell / pyramid of doom
+* Avoid callback hell / piramyd of doom
 * Simpler, sequential programming when required, without blocking node's event loop (thanks to fibers)
 * Simpler, try-catch exception programming. (default callback handler is: if (err) throw err; else return data)
 * You can also launch multiple parallel non-concurrent fibers.
@@ -46,7 +48,7 @@ pure node.js:
 	});
 
 
-using Wait.for:
+using **wait.for**:
 
 	console.log(wait.for(fd.readfile,'/etc/passwd'));
 
@@ -54,7 +56,7 @@ using Wait.for:
 What if... Fibers and WaitFor where part of node core?
 -
 then you can deprecate almost half the functions at: http://nodejs.org/api/fs.html
-(a clue: the *Sync* versions)
+(clue: the *Sync* versions)
 
 
 Database example (pseudocode)
@@ -68,7 +70,7 @@ pure node.js:
 				if (err) throw err;
 				db.select("* from accounts where user_id=?",sessiondata.user_ID),function(err,accountdata) {
 					if (err) throw err;
-    					if (accountdata.balance < amount) throw new Err('insufficient funds');
+    					if (accountdata.balance < amount) throw new Error('insufficient funds');
     					db.execute("withdrawal(?,?),accountdata.ID,req.param("amount"), function(err,data) {
     						if (err) throw err;
     						res.write("withdrawal OK, amount: "+ req.param("amount"));
@@ -89,14 +91,14 @@ Catching exceptions with callback hell adds a lot of pain, and i'm not sure if y
 to respond to the user. If somebody like to fix this example... be my guest.
 
 
-using wait.for:
+using **wait.for**:
 
 	function handleWithdrawal(req,res){  
 		try {
 			var amount=req.param("amount");
 			sessiondata = wait.forMethod(db,"select","* from session where session_id=?",req.param("session_id"));
 			accountdata= wait.forMethod(db,"select","* from accounts where user_id=?",sessiondata.user_ID);
-			if (accountdata.balance < amount) throw new Err('insufficient funds');
+			if (accountdata.balance < amount) throw new Error('insufficient funds');
 			wait.forMethod(db,"execute","withdrawal(?,?)",accountdata.ID,req.param("amount"));
 			res.write("withdrawal OK, amount: "+ req.param("amount"));
 			balance=wait.forMethod(db,"select","balance from accounts where account_id=?", accountdata.ID);
@@ -108,7 +110,7 @@ using wait.for:
 
 
 Note: Exceptions will be catched as expected.
-db methods (db.select,db.execute) will be called with this=db
+db methods (db.select, db.execute) will be called with this=db
 
 
 DNS example
@@ -131,7 +133,7 @@ pure node.js:
  	});
 
 
-using Wait.for:
+using **wait.for**:
 
 	var dns = require("dns"), wait=require('waitfor');
 	
