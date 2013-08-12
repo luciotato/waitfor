@@ -108,12 +108,12 @@ using wait.for:
 			balance=wait.for(db.select("balance from accounts where account_id=?", accountdata.ID));
 			res.end("your current balance is "  + balance.amount);
     		}
-    		catch(err) {
-    			res.end("Withdrawal error: "  + err.message);
-		}  
+    	catch(err) {
+    		res.end("Withdrawal error: "  + err.message);
+	}  
 
 
-Note: Exceptions will be catched as expeceted.
+Note: Exceptions will be catched as expected.
 
 DNS example
 --
