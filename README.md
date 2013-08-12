@@ -5,12 +5,12 @@ Wait.for
 =======
 Simplest abstraction over Fibers.
 
-Take any async function (with callbackFn(err,data) as last parameter) 
-and callit in SYNC mode, waiting for results, returning "data" and, if err, throw err.
+Take any nodejs standard async function (with callback(err,data) as last parameter) 
+and callit in SYNC mode, waiting for results, returning "data" and, throwing on error.
 
 Advantages:
 * Avoid callback hell / pyramid of doom
-* Simpler, sequential programming wher requierd, without blocking node's event loop (thanks to fibers)
+* Simpler, sequential programming when required, without blocking node's event loop (thanks to fibers)
 * Simpler, try-cath exception programming. (default callback handler is: if (err) throw err; else return data)
 * You can also launch multiple parallel non-concurrent fibers.
 * No multithread debugging nightmares, only one fiber running at a given time (thanks to fibers)
@@ -21,7 +21,7 @@ Advantages:
 
 TO DO:
 --
-- support wait.for (object.method, arg...) with the right value for "this"
+- support wait.for (object.method, arg...) passing this=*object*
 - ( actualliy this=null for wait.launch and wait.for )
 
 Usage: 
@@ -33,10 +33,10 @@ Usage:
 	wait.launch(my_seq_function, arg,arg,...) 
 
 	function my_seq_function(arg,arg...){
-	    // call async function, wait for result, get data.
-	    var result = wait.for(any_async_function, args,...)  
+	    // call async function, wait for result, return data
+	    var result1 = wait.for(any_async_function, args,...); 
 	    // call another async function, wait for result, return data
-   	    var result2 = wait.for(another_async_function, result, args,...)  
+   	    var result2 = wait.for(another_async_function, result1, args,...);
 	}
 	
 	
@@ -91,11 +91,11 @@ pure node.js:
 		}  
 
 Note: The above code, although it looks like will catch the exceptions, **it will not**. 
-Catching exceptions witch callback hell will add a lot of pain, and i'm not sure if you will have the 'res' parameter 
-to respond to the user. If somebody like to fix this example... be mi guest.
+Catching exceptions with callback hell adds a lot of pain, and i'm not sure if you will have the 'res' parameter 
+to respond to the user. If somebody like to fix this example... be my guest.
 
 
-with wait.for:
+using wait.for:
 
 	function handleWithdrawal(req,res){  
 		try {
