@@ -1,5 +1,5 @@
 {
-  "name": "node-waitfor"
+  "name": "wait.for"
   ,"version": "0.6.0"
   ,"description": "Sequential programming for node.js, end of callback hell"
   
