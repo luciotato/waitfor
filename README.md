@@ -20,27 +20,16 @@ Advantages:
 * Plays along with node cluster. You design for on thread/processor, then scale with cluster on multicores.
 
 
-Usage: 
+Install: 
 -
+        npm install wait.for
 
-	var wait=require('waitfor');
-	
-	// launch a new fiber
-	wait.launch(my_seq_function, arg,arg,...) 
-
-	function my_seq_function(arg,arg...){
-	    // call async_function(arg1), wait for result, return data
-	    var myObj = wait.for(async_function, arg1); 
-	    // call myObj.querydata(arg1,arg2), wait for result, return data
-   	    var myObjData = wait.forMethod(myObj,'queryData', arg1, arg2);
-   	    console.log(myObjData.toString());
-	}
-	
-	
 Examples:
 -
 
 pure node.js:
+
+	var fs = require("fs");
 
 	fs.readFile('/etc/passwd', function (err, data) {
 		if (err) throw err;
@@ -50,6 +39,8 @@ pure node.js:
 
 using **wait.for**:
 
+	var fs = require("fs"), wait=require('wait.for');
+	
 	console.log(wait.for(fd.readfile,'/etc/passwd'));
 
 
@@ -62,6 +53,8 @@ then you can deprecate almost half the functions at: http://nodejs.org/api/fs.ht
 Database example (pseudocode)
 --
 pure node.js:
+
+	var db = require("some-db-abstraction");
 
 	function handleWithdrawal(req,res){  
 		try {
@@ -92,6 +85,8 @@ to respond to the user. If somebody like to fix this example... be my guest.
 
 
 using **wait.for**:
+
+	var db = require("some-db-abstraction"), wait=require('wait.for');
 
 	function handleWithdrawal(req,res){  
 		try {
@@ -135,7 +130,7 @@ pure node.js:
 
 using **wait.for**:
 
-	var dns = require("dns"), wait=require('waitfor');
+	var dns = require("dns"), wait=require('wait.for');
 	
 	var addresses = wait.for(dns.resolve4,"google.com");
 	console.log("addresses: " + JSON.stringify(addresses));
@@ -146,3 +141,21 @@ using **wait.for**:
 
 
 see tests.js for more examples.
+
+Usage: 
+-
+	var wait=require('wait.for');
+	
+	// launch a new fiber
+	wait.launch(my_seq_function, arg,arg,...) 
+
+	function my_seq_function(arg,arg...){
+	    // call async_function(arg1), wait for result, return data
+	    var myObj = wait.for(async_function, arg1); 
+	    // call myObj.querydata(arg1,arg2), wait for result, return data
+   	    var myObjData = wait.forMethod(myObj,'queryData', arg1, arg2);
+   	    console.log(myObjData.toString());
+	}
+	
+	
+
