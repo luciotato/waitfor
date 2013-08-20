@@ -27,91 +27,7 @@ Install:
 Examples:
 -
 
-pure node.js:
-
-	var fs = require("fs");
-
-	fs.readFile('/etc/passwd', function (err, data) {
-		if (err) throw err;
-		console.log(data);
-	});
-
-
-using **wait.for**:
-
-	var fs = require("fs"), wait=require('wait.for');
-	
-	console.log(wait.for(fd.readfile,'/etc/passwd'));
-
-
-What if... Fibers and WaitFor where part of node core?
--
-then you can deprecate almost half the functions at: http://nodejs.org/api/fs.html
-(clue: the *Sync* versions)
-
-
-Database example (pseudocode)
---
-pure node.js:
-
-	var db = require("some-db-abstraction");
-
-	function handleWithdrawal(req,res){  
-		try {
-			var amount=req.param("amount");
-			db.select("* from sessions where session_id=?",req.param("session_id"),function(err,sessiondata) {
-				if (err) throw err;
-				db.select("* from accounts where user_id=?",sessiondata.user_ID),function(err,accountdata) {
-					if (err) throw err;
-    					if (accountdata.balance < amount) throw new Error('insufficient funds');
-    					db.execute("withdrawal(?,?),accountdata.ID,req.param("amount"), function(err,data) {
-    						if (err) throw err;
-    						res.write("withdrawal OK, amount: "+ req.param("amount"));
-    						db.select("balance from accounts where account_id=?", accountdata.ID,function(err,balance) {
-    							if (err) throw err;
-    							res.end("your current balance is "  + balance.amount);
-    						});
-	    				});
-    				});
-    			});
-    		}
-    		catch(err) {
-    			res.end("Withdrawal error: "  + err.message);
-		}  
-
-Note: The above code, although it looks like it will catch the exceptions, **it will not**. 
-Catching exceptions with callback hell adds a lot of pain, and i'm not sure if you will have the 'res' parameter 
-to respond to the user. If somebody like to fix this example... be my guest.
-
-
-using **wait.for**:
-
-	var db = require("some-db-abstraction"), wait=require('wait.for');
-
-	function handleWithdrawal(req,res){  
-		try {
-			var amount=req.param("amount");
-			sessiondata = wait.forMethod(db,"select","* from session where session_id=?",req.param("session_id"));
-			accountdata= wait.forMethod(db,"select","* from accounts where user_id=?",sessiondata.user_ID);
-			if (accountdata.balance < amount) throw new Error('insufficient funds');
-			wait.forMethod(db,"execute","withdrawal(?,?)",accountdata.ID,req.param("amount"));
-			res.write("withdrawal OK, amount: "+ req.param("amount"));
-			balance=wait.forMethod(db,"select","balance from accounts where account_id=?", accountdata.ID);
-			res.end("your current balance is "  + balance.amount);
-    		}
-    	catch(err) {
-    		res.end("Withdrawal error: "  + err.message);
-	}  
-
-
-Note: Exceptions will be catched as expected.
-db methods (db.select, db.execute) will be called with this=db
-
-
-DNS example
---
-
-pure node.js:
+DNS testing, pure node.js:
 
 	var dns = require("dns");
 
@@ -140,7 +56,92 @@ using **wait.for**:
    	};
 
 
-see tests.js for more examples.
+Database example (pseudocode)
+--
+pure node.js (callback hell):
+
+	var db = require("some-db-abstraction");
+
+	function handleWithdrawal(req,res){  
+		try {
+			var amount=req.param("amount");
+			db.select("* from sessions where session_id=?",req.param("session_id"),function(err,sessiondata) {
+				if (err) throw err;
+				db.select("* from accounts where user_id=?",sessiondata.user_ID),function(err,accountdata) {
+					if (err) throw err;
+    					if (accountdata.balance < amount) throw new Error('insufficient funds');
+    					db.execute("withdrawal(?,?),accountdata.ID,req.param("amount"), function(err,data) {
+    						if (err) throw err;
+    						res.write("withdrawal OK, amount: "+ req.param("amount"));
+    						db.select("balance from accounts where account_id=?", accountdata.ID,function(err,balance) {
+    							if (err) throw err;
+    							res.end("your current balance is "  + balance.amount);
+    						});
+	    				});
+    				});
+    			});
+    		}
+    		catch(err) {
+    			res.end("Withdrawal error: "  + err.message);
+		}
+	}
+
+Note: The above code, although it looks like it will catch the exceptions, **it will not**. 
+Catching exceptions with callback hell adds a lot of pain, and i'm not sure if you will have the 'res' parameter 
+to respond to the user. If somebody like to fix this example... be my guest.
+
+
+using **wait.for** (sequential programming):
+
+	var db = require("some-db-abstraction"), wait=require('wait.for');
+
+	function handleWithdrawal(req,res){  
+		try {
+			var amount=req.param("amount");
+			sessiondata = wait.forMethod(db,"select","* from session where session_id=?",req.param("session_id"));
+			accountdata= wait.forMethod(db,"select","* from accounts where user_id=?",sessiondata.user_ID);
+			if (accountdata.balance < amount) throw new Error('insufficient funds');
+			wait.forMethod(db,"execute","withdrawal(?,?)",accountdata.ID,req.param("amount"));
+			res.write("withdrawal OK, amount: "+ req.param("amount"));
+			balance=wait.forMethod(db,"select","balance from accounts where account_id=?", accountdata.ID);
+			res.end("your current balance is "  + balance.amount);
+    		}
+    	catch(err) {
+    		res.end("Withdrawal error: "  + err.message);
+	}  
+
+
+Note: Exceptions will be catched as expected.
+db methods (db.select, db.execute) will be called with this=db
+
+
+What if... Fibers and WaitFor where part of node core?
+-
+then you can deprecate almost half the functions at: http://nodejs.org/api/fs.html
+(clue: the *Sync* versions)
+
+Example:
+--
+
+pure node.js:
+
+	var fs = require("fs");
+
+	fs.readFile('/etc/passwd', function (err, data) {
+		if (err) throw err;
+		console.log(data);
+	});
+
+
+using **wait.for**:
+
+	var fs = require("fs"), wait=require('wait.for');
+	
+	console.log(wait.for(fd.readfile,'/etc/passwd'));
+
+
+
+(see tests.js for more examples)
 
 Usage: 
 -
@@ -149,6 +150,7 @@ Usage:
 	// launch a new fiber
 	wait.launch(my_seq_function, arg,arg,...) 
 
+	// fiber
 	function my_seq_function(arg,arg...){
 	    // call async_function(arg1), wait for result, return data
 	    var myObj = wait.for(async_function, arg1); 
@@ -156,6 +158,3 @@ Usage:
    	    var myObjData = wait.forMethod(myObj,'queryData', arg1, arg2);
    	    console.log(myObjData.toString());
 	}
-	
-	
-
