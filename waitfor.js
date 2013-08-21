@@ -20,6 +20,8 @@ var Wait = {
         var fiber=Fiber.current;
         if (!fiber) throw new Error('wait.for can only be called inside a fiber');
 
+        var fnName = fn.name;
+
         //create a closure to resume on callback
         var resumeCallback=function(err,data){
                             fiber.callbackAlreadyCalled = true;
@@ -27,8 +29,9 @@ var Wait = {
                             fiber.data=data; //store data on fiber object
                             try { fiber.run(); }   //resume fiber
                             catch(e){ // ignore error: "Fiber is already running" (when callback is called before async function returns)
+                                //console.log(e.stack);
                                 if (e.message === "This Fiber is already running") null;
-                                else throw new Error("calling function: "+fn.name+"\n"+e.message);
+                                else throw e;
                             }; 
                         };
 
