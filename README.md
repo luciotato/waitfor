@@ -137,7 +137,7 @@ using **wait.for**:
 
 	var fs = require("fs"), wait=require('wait.for');
 	
-	console.log(wait.for(fd.readfile,'/etc/passwd'));
+	console.log(wait.for(fs.readfile,'/etc/passwd'));
 
 
 
