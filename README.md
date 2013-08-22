@@ -158,3 +158,11 @@ Usage:
    	    var myObjData = wait.forMethod(myObj,'queryData', arg1, arg2);
    	    console.log(myObjData.toString());
 	}
+
+Roadmap
+--
+
+ * Parallel execution, launch one fiber for each array item, waits until all fibers complete execution.
+   * **function wait.parallel.map(arr,fn)** return transformed array;
+   * **function wait.parallel.filter(arr,fn)** return filtered array;
+   * Status: working prototypes in [paralell-tests.js](http://github.com/luciotato/waitfor/blob/master/paralell-tests.js)
