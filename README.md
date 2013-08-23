@@ -76,7 +76,7 @@ function handleWithdrawal(req,res){
 			db.select("* from accounts where user_id=?",sessiondata.user_ID),function(err,accountdata) {
 				if (err) throw err;
 					if (accountdata.balance < amount) throw new Error('insufficient funds');
-					db.execute("withdrawal(?,?),accountdata.ID,req.param("amount"), function(err,data) {
+					db.execute("withdrawal(?,?)",accountdata.ID,req.param("amount"), function(err,data) {
 						if (err) throw err;
 						res.write("withdrawal OK, amount: "+ req.param("amount"));
 						db.select("balance from accounts where account_id=?", accountdata.ID,function(err,balance) {
@@ -105,11 +105,11 @@ function handleWithdrawal(req,res){
 	try {
 		var amount=req.param("amount");
 		sessiondata = wait.forMethod(db,"select","* from session where session_id=?",req.param("session_id"));
-		accountdata= wait.forMethod(db,"select","* from accounts where user_id=?",sessiondata.user_ID);
+		accountdata = wait.forMethod(db,"select","* from accounts where user_id=?",sessiondata.user_ID);
 		if (accountdata.balance < amount) throw new Error('insufficient funds');
 		wait.forMethod(db,"execute","withdrawal(?,?)",accountdata.ID,req.param("amount"));
 		res.write("withdrawal OK, amount: "+ req.param("amount"));
-		balance=wait.forMethod(db,"select","balance from accounts where account_id=?", accountdata.ID);
+		balance = wait.forMethod(db,"select","balance from accounts where account_id=?", accountdata.ID);
 		res.end("your current balance is "  + balance.amount);
 		}
 	catch(err) {
