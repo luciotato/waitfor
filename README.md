@@ -27,13 +27,12 @@ Install:
 Examples:
 -
 
-DNS testing, pure node.js:
+DNS testing, *using pure node.js*:
 
 	var dns = require("dns");
 
-	dns.resolve4("google.com", function(err, data) {
+	dns.resolve4("google.com", function(err, addresses) {
 		if (err) throw err;
-		console.log("addresses: " + JSON.stringify(data));
 		for (var i = 0; i < addresses.length; i++) {
 			var a = addresses[i];
 			dns.reverse(a, function (err, data) {
@@ -44,12 +43,11 @@ DNS testing, pure node.js:
  	});
 
 
-using **wait.for**:
+***THE SAME CODE***, using **wait.for**:
 
 	var dns = require("dns"), wait=require('wait.for');
 	
 	var addresses = wait.for(dns.resolve4,"google.com");
-	console.log("addresses: " + JSON.stringify(addresses));
 	for (var i = 0; i < addresses.length; i++) {
 		var a = addresses[i];
 		console.log("reverse for " + a + ": " + JSON.stringify(wait.for(dns.reverse,a)));
@@ -58,7 +56,7 @@ using **wait.for**:
 
 Database example (pseudocode)
 --
-pure node.js (callback hell):
+*using pure node.js* (a callback hell):
 
 	var db = require("some-db-abstraction");
 
@@ -91,7 +89,7 @@ Catching exceptions with callback hell adds a lot of pain, and i'm not sure if y
 to respond to the user. If somebody like to fix this example... be my guest.
 
 
-using **wait.for** (sequential programming):
+***THE SAME CODE***, using **wait.for**: (sequential programming)
 
 	var db = require("some-db-abstraction"), wait=require('wait.for');
 
