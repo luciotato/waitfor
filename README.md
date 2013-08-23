@@ -158,7 +158,7 @@ Usage:
 var wait=require('wait.for');
 
 // launch a new fiber
-wait.launch(my_seq_function, arg,arg,...) 
+wait.launchFiber(my_seq_function, arg,arg,...)
 
 // fiber
 function my_seq_function(arg,arg...){
