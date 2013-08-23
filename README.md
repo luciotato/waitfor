@@ -28,92 +28,94 @@ Examples:
 -
 
 DNS testing, *using pure node.js* (a little of callback hell):
-
-	var dns = require("dns");
-        
-	function test(){ 
-		dns.resolve4("google.com", function(err, addresses) {
-			if (err) throw err;
-			for (var i = 0; i < addresses.length; i++) {
-				var a = addresses[i];
-				dns.reverse(a, function (err, data) {
-					if (err) throw err;
-					console.log("reverse for " + a + ": " + JSON.stringify(data));
-				});
-			};
-		});
-	}
-
-	test();
-
-***THE SAME CODE***, using **wait.for** (sequential):
-
-	var dns = require("dns"), wait=require('wait.for');
-
-	function test(){
-		var addresses = wait.for(dns.resolve4,"google.com");
+```javascript
+var dns = require("dns");
+    
+function test(){ 
+	dns.resolve4("google.com", function(err, addresses) {
+		if (err) throw err;
 		for (var i = 0; i < addresses.length; i++) {
 			var a = addresses[i];
-			console.log("reverse for " + a + ": " + JSON.stringify(wait.for(dns.reverse,a)));
-		}
-   	}
-   	
-	wait.launchFiber(test); 
+			dns.reverse(a, function (err, data) {
+				if (err) throw err;
+				console.log("reverse for " + a + ": " + JSON.stringify(data));
+			});
+		};
+	});
+}
 
+test();
+```
+
+***THE SAME CODE***, using **wait.for** (sequential):
+```javascript
+var dns = require("dns"), wait=require('wait.for');
+
+function test(){
+	var addresses = wait.for(dns.resolve4,"google.com");
+	for (var i = 0; i < addresses.length; i++) {
+		var a = addresses[i];
+		console.log("reverse for " + a + ": " + JSON.stringify(wait.for(dns.reverse,a)));
+	}
+}
+
+wait.launchFiber(test); 
+```
 
 Database example (pseudocode)
 --
 *using pure node.js* (a callback hell):
+```javascript
+var db = require("some-db-abstraction");
 
-	var db = require("some-db-abstraction");
-
-	function handleWithdrawal(req,res){  
-		try {
-			var amount=req.param("amount");
-			db.select("* from sessions where session_id=?",req.param("session_id"),function(err,sessiondata) {
+function handleWithdrawal(req,res){  
+	try {
+		var amount=req.param("amount");
+		db.select("* from sessions where session_id=?",req.param("session_id"),function(err,sessiondata) {
+			if (err) throw err;
+			db.select("* from accounts where user_id=?",sessiondata.user_ID),function(err,accountdata) {
 				if (err) throw err;
-				db.select("* from accounts where user_id=?",sessiondata.user_ID),function(err,accountdata) {
-					if (err) throw err;
-    					if (accountdata.balance < amount) throw new Error('insufficient funds');
-    					db.execute("withdrawal(?,?),accountdata.ID,req.param("amount"), function(err,data) {
-    						if (err) throw err;
-    						res.write("withdrawal OK, amount: "+ req.param("amount"));
-    						db.select("balance from accounts where account_id=?", accountdata.ID,function(err,balance) {
-    							if (err) throw err;
-    							res.end("your current balance is "  + balance.amount);
-    						});
-	    				});
+					if (accountdata.balance < amount) throw new Error('insufficient funds');
+					db.execute("withdrawal(?,?),accountdata.ID,req.param("amount"), function(err,data) {
+						if (err) throw err;
+						res.write("withdrawal OK, amount: "+ req.param("amount"));
+						db.select("balance from accounts where account_id=?", accountdata.ID,function(err,balance) {
+							if (err) throw err;
+							res.end("your current balance is "  + balance.amount);
+						});
     				});
-    			});
-    		}
-    		catch(err) {
-    			res.end("Withdrawal error: "  + err.message);
+				});
+			});
 		}
+		catch(err) {
+			res.end("Withdrawal error: "  + err.message);
 	}
-
+}
+```
 Note: The above code, although it looks like it will catch the exceptions, **it will not**. 
 Catching exceptions with callback hell adds a lot of pain, and i'm not sure if you will have the 'res' parameter 
 to respond to the user. If somebody like to fix this example... be my guest.
 
 
 ***THE SAME CODE***, using **wait.for** (sequential logic - sequential programming):
+```javascript
+var db = require("some-db-abstraction"), wait=require('wait.for');
 
-	var db = require("some-db-abstraction"), wait=require('wait.for');
-
-	function handleWithdrawal(req,res){  
-		try {
-			var amount=req.param("amount");
-			sessiondata = wait.forMethod(db,"select","* from session where session_id=?",req.param("session_id"));
-			accountdata= wait.forMethod(db,"select","* from accounts where user_id=?",sessiondata.user_ID);
-			if (accountdata.balance < amount) throw new Error('insufficient funds');
-			wait.forMethod(db,"execute","withdrawal(?,?)",accountdata.ID,req.param("amount"));
-			res.write("withdrawal OK, amount: "+ req.param("amount"));
-			balance=wait.forMethod(db,"select","balance from accounts where account_id=?", accountdata.ID);
-			res.end("your current balance is "  + balance.amount);
-    		}
-    	catch(err) {
-    		res.end("Withdrawal error: "  + err.message);
-	}  
+function handleWithdrawal(req,res){  
+	try {
+		var amount=req.param("amount");
+		sessiondata = wait.forMethod(db,"select","* from session where session_id=?",req.param("session_id"));
+		accountdata= wait.forMethod(db,"select","* from accounts where user_id=?",sessiondata.user_ID);
+		if (accountdata.balance < amount) throw new Error('insufficient funds');
+		wait.forMethod(db,"execute","withdrawal(?,?)",accountdata.ID,req.param("amount"));
+		res.write("withdrawal OK, amount: "+ req.param("amount"));
+		balance=wait.forMethod(db,"select","balance from accounts where account_id=?", accountdata.ID);
+		res.end("your current balance is "  + balance.amount);
+		}
+	catch(err) {
+		res.end("Withdrawal error: "  + err.message);
+}  
+```
 
 
 Note: Exceptions will be catched as expected.
@@ -129,20 +131,22 @@ Example:
 --
 
 pure node.js:
+```javascript
+var fs = require("fs");
 
-	var fs = require("fs");
-
-	fs.readFile('/etc/passwd', function (err, data) {
-		if (err) throw err;
-		console.log(data);
-	});
+fs.readFile('/etc/passwd', function (err, data) {
+	if (err) throw err;
+	console.log(data);
+});
+```
 
 
 using **wait.for**:
+```javascript
+var fs = require("fs"), wait=require('wait.for');
 
-	var fs = require("fs"), wait=require('wait.for');
-	
-	console.log(wait.for(fs.readFile,'/etc/passwd'));
+console.log(wait.for(fs.readFile,'/etc/passwd'));
+```
 
 
 
@@ -150,19 +154,21 @@ using **wait.for**:
 
 Usage: 
 -
-	var wait=require('wait.for');
-	
-	// launch a new fiber
-	wait.launch(my_seq_function, arg,arg,...) 
+```javascript
+var wait=require('wait.for');
 
-	// fiber
-	function my_seq_function(arg,arg...){
-	    // call async_function(arg1), wait for result, return data
-	    var myObj = wait.for(async_function, arg1); 
-	    // call myObj.querydata(arg1,arg2), wait for result, return data
-   	    var myObjData = wait.forMethod(myObj,'queryData', arg1, arg2);
-   	    console.log(myObjData.toString());
-	}
+// launch a new fiber
+wait.launch(my_seq_function, arg,arg,...) 
+
+// fiber
+function my_seq_function(arg,arg...){
+    // call async_function(arg1), wait for result, return data
+    var myObj = wait.for(async_function, arg1); 
+    // call myObj.querydata(arg1,arg2), wait for result, return data
+    var myObjData = wait.forMethod(myObj,'queryData', arg1, arg2);
+    console.log(myObjData.toString());
+}
+```
 
 Roadmap
 --
