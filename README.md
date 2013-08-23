@@ -27,7 +27,7 @@ Install:
 Examples:
 -
 
-DNS testing, *using pure node.js*:
+DNS testing, *using pure node.js* (a little of callback hell):
 
 	var dns = require("dns");
 
@@ -43,7 +43,7 @@ DNS testing, *using pure node.js*:
  	});
 
 
-***THE SAME CODE***, using **wait.for**:
+***THE SAME CODE***, using **wait.for** (sequential):
 
 	var dns = require("dns"), wait=require('wait.for');
 	
@@ -89,7 +89,7 @@ Catching exceptions with callback hell adds a lot of pain, and i'm not sure if y
 to respond to the user. If somebody like to fix this example... be my guest.
 
 
-***THE SAME CODE***, using **wait.for**: (sequential programming)
+***THE SAME CODE***, using **wait.for** (sequential logic - sequential programming):
 
 	var db = require("some-db-abstraction"), wait=require('wait.for');
 
