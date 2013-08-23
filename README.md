@@ -2,7 +2,7 @@ Wait.for
 =======
 Sequential programming for node.js, end of callback hell.
 
-Simple, straightforward abstraction over Fibers.
+Simple, straightforward abstraction over [Fibers](https://github.com/laverdet/node-fibers).
 
 By using **wait.for**, you can call any nodejs standard async function in sequential/Sync mode, waiting for result data, 
 without blocking node's event loop (thanks to fibers)
