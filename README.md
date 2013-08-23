@@ -7,17 +7,17 @@ Simple, straightforward abstraction over [Fibers](https://github.com/laverdet/no
 By using **wait.for**, you can call any nodejs standard async function in sequential/Sync mode, waiting for result data, 
 without blocking node's event loop (thanks to fibers)
 
-A nodejs standard async function is a function in wich the last parameter is a callback: function(err,data)
+A nodejs standard async function is a function in which the last parameter is a callback: function(err,data)
 
 Advantages:
-* Avoid callback hell / piramyd of doom
+* Avoid callback hell / pyramid of doom
 * Simpler, sequential programming when required, without blocking node's event loop (thanks to fibers)
 * Simpler, try-catch exception programming. (default callback handler is: if (err) throw err; else return data)
 * You can also launch multiple parallel non-concurrent fibers.
-* No multithread debugging nightmares, only one fiber running at a given time (thanks to fibers)
+* No multi-threaded debugging nightmares, only one fiber running at a given time (thanks to fibers)
 * Can use any node-standard async function with callback(err,data) as last parameter.
 * Plays along with node programming style, you write your async functions with callback(err,data), but you can use them in sequential/SYNC mode when required.
-* Plays along with node cluster. You design for on thread/processor, then scale with cluster on multicores.
+* Plays along with node cluster. You design for one thread/processor, then scale with cluster on multicores.
 
 
 Install: 
@@ -46,7 +46,7 @@ DNS testing, *using pure node.js* (a little of callback hell):
 ***THE SAME CODE***, using **wait.for** (sequential):
 
 	var dns = require("dns"), wait=require('wait.for');
-	
+
 	var addresses = wait.for(dns.resolve4,"google.com");
 	for (var i = 0; i < addresses.length; i++) {
 		var a = addresses[i];
