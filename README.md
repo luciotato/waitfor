@@ -113,7 +113,7 @@ Note: Exceptions will be catched as expected.
 db methods (db.select, db.execute) will be called with this=db
 
 
-What if... Fibers and WaitFor where part of node core?
+What if... Fibers and WaitFor were part of node core?
 -
 then you can deprecate almost half the functions at: http://nodejs.org/api/fs.html
 (clue: the *Sync* versions)
