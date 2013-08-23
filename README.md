@@ -30,28 +30,35 @@ Examples:
 DNS testing, *using pure node.js* (a little of callback hell):
 
 	var dns = require("dns");
-
-	dns.resolve4("google.com", function(err, addresses) {
-		if (err) throw err;
-		for (var i = 0; i < addresses.length; i++) {
-			var a = addresses[i];
-			dns.reverse(a, function (err, data) {
-				if (err) throw err;
-				console.log("reverse for " + a + ": " + JSON.stringify(data));
+        
+	function test(){ 
+		dns.resolve4("google.com", function(err, addresses) {
+			if (err) throw err;
+			for (var i = 0; i < addresses.length; i++) {
+				var a = addresses[i];
+				dns.reverse(a, function (err, data) {
+					if (err) throw err;
+					console.log("reverse for " + a + ": " + JSON.stringify(data));
 				});
-    		};
- 	});
+			};
+		});
+	}
 
+	test();
 
 ***THE SAME CODE***, using **wait.for** (sequential):
 
 	var dns = require("dns"), wait=require('wait.for');
 
-	var addresses = wait.for(dns.resolve4,"google.com");
-	for (var i = 0; i < addresses.length; i++) {
-		var a = addresses[i];
-		console.log("reverse for " + a + ": " + JSON.stringify(wait.for(dns.reverse,a)));
-   	};
+	function test(){
+		var addresses = wait.for(dns.resolve4,"google.com");
+		for (var i = 0; i < addresses.length; i++) {
+			var a = addresses[i];
+			console.log("reverse for " + a + ": " + JSON.stringify(wait.for(dns.reverse,a)));
+		}
+   	}
+   	
+	wait.launchFiber(test); 
 
 
 Database example (pseudocode)
