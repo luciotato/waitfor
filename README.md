@@ -16,8 +16,14 @@ Advantages:
 * You can also launch multiple parallel non-concurrent fibers.
 * No multi-threaded debugging nightmares, only one fiber running at a given time (thanks to fibers)
 * Can use any node-standard async function with callback(err,data) as last parameter.
-* Plays along with node programming style, you write your async functions with callback(err,data), but you can use them in sequential/SYNC mode when required.
+* Plays along with node programming style. Write your async functions with callback(err,data), but use them in sequential/SYNC mode when required.
 * Plays along with node cluster. You design for one thread/processor, then scale with cluster on multicores.
+
+--- NEWS ---
+-
+I've developed ***a version based on JavaScript upcoming ES6-Harmony generators***. It's not based on node-fibers.
+***Surprisingly***, ES6 based implementation of *wait.for(asyncFn)* is almost a no-op, you can even completely omit it.
+<br>Check the following link: [Wait.for-ES6: The funny thing is...](https://github.com/luciotato/waitfor-ES6/blob/master/README.md#the-funny-thing-is)
 
 
 Install: 
