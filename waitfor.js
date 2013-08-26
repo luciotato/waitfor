@@ -58,8 +58,6 @@ var Wait = {
 
     ,forMethod: function(obj,methodName){ // wait.forMethod(MyObj,'select',....)
 
-        if (typeof obj !== 'object') throw new Error('wait.forMethod: first argument must be an object');
-
         var method=obj[methodName];
         if (!method) throw new Error('wait.forMethod: second argument must be the async method name (string)');
         
