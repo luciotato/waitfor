@@ -1,6 +1,6 @@
 {
   "name": "wait.for"
-  ,"version": "0.6.1"
+  ,"version": "0.6.2"
   ,"description": "Sequential programming for node.js, end of callback hell"
   
   ,"author": {
@@ -9,9 +9,9 @@
     ,"url":"http://github.com/luciotato"
   }
   ,"keywords": [
-    "fiber", "fibers", "coroutine", "thread", "sycn", "async"
+    "fiber", "fibers", "coroutine", "thread", "sync", "async"
     ,"parallel", "worker", "future", "promise"
-    ,"wait","Wait.for","callback hell","piramyd of doom"]
+    ,"wait","Wait.for","callback hell","pyramid of doom"]
     
   ,"homepage": "http://github.com/luciotato/waitfor"
   ,"license" : "Creative Commons, MIT"
