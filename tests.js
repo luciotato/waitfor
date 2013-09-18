@@ -70,6 +70,16 @@ var theWrongAnswer = new Constructor('a thousand','tomatito');
 
 
 // -------------------
+// test callback called more than one time
+// -------------------
+function callItTwice(callback){
+    setTimeout(callback,200);
+    setTimeout(callback,300);
+    setTimeout(callback,400);
+    setTimeout(callback,500);
+};
+
+// -------------------
 // RUN TESTS (Fiber)--
 // -------------------
 function runTests(hostname){
@@ -91,13 +101,27 @@ function runTests(hostname){
     console.log(wait.forMethod(theAnswer,'pingPong','tomato'));
     console.log(wait.forMethod(theWrongAnswer,'pingPong','pera'));
 
+    wait.for(callItTwice);
+    /*
+    }
+    catch(e){
+    }
+    */
+    console.log('end of tests');
 }
 
 // MAIN
+process.on('uncaughtException', function(e) {
+    if (e.message.indexOf('called twice')!=-1) console.log('OK: wait.for(callItTwice) throw an expected error')
+        else console.log(e);
+});
+
 try{
     wait.launchFiber(runTests,"google.com");
+    console.log('after wait.launchFiber');
 } 
 catch(e){
-    console.log("Error: " + e.message);
+    console.log('catched!');
+    console.log(e);
 };
 
