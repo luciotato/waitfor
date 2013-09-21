@@ -24,6 +24,8 @@ var Wait = {
 
         //create a closure to resume on callback
         var resumeCallback=function(err,data){
+                            if (fiber.callbackAlreadyCalled)
+                                 throw new Error("Callback for function "+fnName+" called twice. Wait.for already resumed the execution.");
                             fiber.callbackAlreadyCalled = true;
                             fiber.err=err; //store err on fiber object
                             fiber.data=data; //store data on fiber object
