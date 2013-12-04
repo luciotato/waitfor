@@ -23,7 +23,7 @@ Advantages:
 -
 I've developed ***a version based on JavaScript upcoming ES6-Harmony generators***. It's not based on node-fibers.
 ***Surprisingly***, ES6 based implementation of *wait.for(asyncFn)* is almost a no-op, you can even completely omit it.
-*Warning: Bleeding edge*. Check [Wait.for-ES6] (https://github.com/luciotato/waitfor-ES6/blob/master/README.md#the-funny-thing-is) 
+*Warning: Bleeding edge*. Check [Wait.for-ES6] (https://github.com/luciotato/waitfor-ES6) 
 
 
 Install: 
