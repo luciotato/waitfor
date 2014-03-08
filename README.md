@@ -19,8 +19,32 @@ Advantages:
 * Plays along with node programming style. Write your async functions with callback(err,data), but use them in sequential/SYNC mode when required.
 * Plays along with node cluster. You design for one thread/processor, then scale with cluster on multicores.
 
---- NEWS ---
--
+NEWS--
+---
+####March-2014
+
+I've ported this functionality to [LiteScript](//github.com/luciotato/LiteScript).
+
+LiteScript is a  higly readable, compile to js language. LiteScript has type annotations, a compile-time validation phase, and catch common js errors and typos in object property names, speeding up development (you code faster) and saving hours of debugging over a mistyped property name. 
+[Try LiteScript online](http://luciotato.github.io/LiteScript_online_playground/playground)
+
+Here it is a sample of LiteScript Code, showing "yield until" (wait for async to complete) and "yield parallel" (launch in parallel, wait until all asyncs complete)
+
+#####get google.com IPs, then reverse DNS (in parallel)
+    global import dns, nicegen
+    nice function resolveAndParallelReverse
+        try
+            var addresses:array = yield until dns.resolve "google.com"
+            var results = yield parallel map addresses dns.reverse 
+            for each index,addr in addresses
+                print "#{addr} reverse: #{results[index]}"
+        catch err
+            print "caught:", err.stack
+    end nice function
+
+---------------
+###Aug-2013
+
 I've developed ***a version based on JavaScript upcoming ES6-Harmony generators***. It's not based on node-fibers.
 ***Surprisingly***, ES6 based implementation of *wait.for(asyncFn)* is almost a no-op, you can even completely omit it.
 *Warning: Bleeding edge*. Check [Wait.for-ES6] (https://github.com/luciotato/waitfor-ES6) 
