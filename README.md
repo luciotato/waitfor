@@ -19,9 +19,10 @@ Advantages:
 * Plays along with node programming style. Write your async functions with callback(err,data), but use them in sequential/SYNC mode when required.
 * Plays along with node cluster. You design for one thread/processor, then scale with cluster on multicores.
 
-NEWS--
----
-####March-2014
+##NEWS
+
+----------------
+####March-2014 - LiteScript
 
 I've ported this functionality to [LiteScript](//github.com/luciotato/LiteScript).
 
@@ -43,32 +44,34 @@ Here it is a sample of LiteScript Code, showing "yield until" (wait for async to
     end nice function
 
 ---------------
-###Aug-2013
+###Aug-2013 - Wait.for-ES6 based on ES6-generators
 
 I've developed ***a version based on JavaScript upcoming ES6-Harmony generators***. It's not based on node-fibers.
-***Surprisingly***, ES6 based implementation of *wait.for(asyncFn)* is almost a no-op, you can even completely omit it.
-*Warning: Bleeding edge*. Check [Wait.for-ES6] (https://github.com/luciotato/waitfor-ES6) 
+***Surprisingly***, ES6 based implementation of *wait.for(asyncFn)* is almost a no-op, you can even completely omit it. *Warning: Bleeding edge*. Check [Wait.for-ES6] (https://github.com/luciotato/waitfor-ES6) 
+
+---------------
 
 
 Install: 
--
+----
         npm install wait.for
 
 
 Proper Use:
--
-Wait.for proper usage is to launch a fiber to attend a request. Ideally here:
+----
+You need to be in a Fiber to be able to use wait.for. The ideal place to launch a fiber
+is when a request arrives, to handle it:
 
 ```javascript
 var server = http.createServer(
   function(req, res){
     console.log('req!');
-    wait.launchFiber(handler,req,res); //handle in a fiber
-    // keep node spinning
+    wait.launchFiber(handler,req,res); //handle in a fiber, keep node spinning
   }).listen(8000);
 ```
 
-then,at *function handler(req,res)* and every function you call from there, you'll be able to use wait.for(ayncFn...
+then,at *function handler(req,res)* and every function you call from there, 
+you'll be able to use wait.for(ayncFn...
 
 Examples:
 -
@@ -163,43 +166,12 @@ function handleWithdrawal(req,res){
 }  
 ```
 
-
 Note: Exceptions will be catched as expected.
 db methods (db.select, db.execute) will be called with this=db
 
 
-What if... Fibers and WaitFor were part of node core?
--
-then you can deprecate almost half the functions at: http://nodejs.org/api/fs.html
-(clue: the *Sync* versions)
-
-Example:
---
-
-pure node.js:
-```javascript
-var fs = require("fs");
-
-fs.readFile('/etc/passwd', function (err, data) {
-	if (err) throw err;
-	console.log(data);
-});
-```
-
-
-using **wait.for**:
-```javascript
-var fs = require("fs"), wait=require('wait.for');
-
-console.log(wait.for(fs.readFile,'/etc/passwd'));
-```
-
-
-
-(see tests.js for more examples)
-
 Usage: 
--
+------------
 ```javascript
 var wait=require('wait.for');
 
