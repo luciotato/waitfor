@@ -29,21 +29,24 @@ var Wait = {
                             fiber.callbackAlreadyCalled = true;
                             fiber.err=err; //store err on fiber object
                             fiber.data=data; //store data on fiber object
-                            try { fiber.run(); }   //resume fiber
-                            catch(e){ // ignore error: "Fiber is already running" (when callback is called before async function returns)
-                                //console.log(e.stack);
-                                if (e.message === "This Fiber is already running") null;
-                                else throw e;
-                            }; 
+                            if (!fiber.yielded) {//when callback is called *before* async function returns
+                                // no need to "resume" because we never got the chance to "yield"
+                                return;
+                            }
+                            else {
+                                fiber.run();   //resume fiber after "yield"
+                            }
                         };
 
         args.push(resumeCallback);//add resumeCallback to arguments
 
         fiber.callbackAlreadyCalled=false;
+        fiber.yielded = false;
         fn.apply(thisValue, args); //call async function/method
-
-        if (!fiber.callbackAlreadyCalled) //except callback was called before async fn return
+        if (!fiber.callbackAlreadyCalled) { //except callback was called before async fn return
+            fiber.yielded = true;
             Fiber.yield(); //pause fiber, until callback => wait for results
+        }
 
         if (fiber.err) throw fiber.err; //auto throw on error
         return fiber.data; //return data on success
