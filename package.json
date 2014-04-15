@@ -1,33 +1,43 @@
 {
-  "name": "wait.for"
-  ,"version": "0.6.3"
-  ,"description": "Sequential programming for node.js, end of callback hell"
-  
-  ,"author": {
-    "name": "Lucio Tato"
-    ,"email": "luciotato@gmail.com"
-    ,"url":"http://github.com/luciotato"
-  }
-  ,"keywords": [
-    "fiber", "fibers", "coroutine", "thread", "sync", "async"
-    ,"parallel", "worker", "future", "promise"
-    ,"wait","Wait.for","callback hell","pyramid of doom"]
-    
-  ,"homepage": "http://github.com/luciotato/waitfor"
-  ,"license" : "Creative Commons, MIT"
-  ,"bugs": "http://github.com/luciotato/waitfor/issues"
-  ,"repository": {
-    "type": "git"
-    ,"url": "git://github.com/luciotato/waitfor.git"
-  }
-  ,"main": "waitfor.js"
-  , "engines": { 
-  	"node": ">=0.5.2" 
-  	}
-  ,"dependencies": {
-	"fibers": ">=1.0.1"
-	}
- ,"scripts": {
+  "name": "wait.for",
+  "version": "0.6.4",
+  "description": "Sequential programming for node.js, end of callback hell",
+  "author": {
+    "name": "Lucio Tato",
+    "email": "luciotato@gmail.com",
+    "url": "http://github.com/luciotato"
+  },
+  "keywords": [
+    "fiber",
+    "fibers",
+    "coroutine",
+    "thread",
+    "sync",
+    "async",
+    "parallel",
+    "worker",
+    "future",
+    "promise",
+    "wait",
+    "Wait.for",
+    "callback hell",
+    "pyramid of doom"
+  ],
+  "homepage": "http://github.com/luciotato/waitfor",
+  "license": "Creative Commons, MIT",
+  "bugs": "http://github.com/luciotato/waitfor/issues",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/luciotato/waitfor.git"
+  },
+  "main": "waitfor.js",
+  "engines": {
+    "node": ">=0.5.2"
+  },
+  "dependencies": {
+    "fibers": ">=1.0.1"
+  },
+  "scripts": {
     "test": "node tests"
   }
 }
