@@ -170,7 +170,27 @@ Note: Exceptions will be catched as expected.
 db methods (db.select, db.execute) will be called with this=db
 
 
-Usage: 
+Basic Usage Example with Express.js
+----
+```
+var wait = require('wait.for');
+var express = require('express');
+var app = express();
+
+// in  a Fiber
+function handleGet(req, res){
+  res.send( wait.for(fs.readFile,'largeFile.html') );
+}
+
+app.get('/', function(req,res){
+      wait.launchFiber(handleGet, req, res); //handle in a fiber, keep node spinning
+});
+
+app.listen(3000);
+
+```
+
+Generic Usage: 
 ------------
 ```javascript
 var wait=require('wait.for');
