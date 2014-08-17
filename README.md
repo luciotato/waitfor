@@ -266,8 +266,8 @@ Note: must be in a Fiber
 Parallel Usage Example: 
 see: 
 - [parallel-tests](/parallel-tests.js)
--------------
 
+-------------
 ##Notes on usage on non-standard callbacks. e.g.: connection.query from mysql
 
 wait.for expects standardized callbacks. 
