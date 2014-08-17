@@ -208,10 +208,10 @@ function my_seq_function(arg,arg...){
 }
 ```
 
-Extensions
+Parallel Extensions
 ----------
 
-wait.parallel.launch = function(functions)
+wait.parallel.launch(functions:Array)
 ----------------------
      
 Note: must be in a Fiber
@@ -234,7 +234,7 @@ do not "returns" until all fibers complete
 throws if error
 
 
-wait.parallel.map = function(arr,mappedFn)
+wait.parallel.map(arr:Array, mappedFn:function)
 ----------------------
      
 Note: must be in a Fiber
@@ -257,7 +257,7 @@ do not "returns" until all fibers complete
 throws if error
 
 
-wait.parallel.filter = function(arr, itemTestFn)
+wait.parallel.filter(arr:Array, itemTestFn:function returns boolean)
 ----------------------
 
 Note: must be in a Fiber
@@ -277,3 +277,35 @@ array with items where itemTestFn() returned true
 do not "returns" until all fibers complete
 
 throws if error
+
+
+-------------
+Parallel Usage Example: 
+see: 
+- (/parallel-tests.js)
+
+##Notes on usage on non-standard callbacks. e.g.: connection.query from mysql
+
+wait.for expects standardized callbacks. 
+A standardized callback always returns (err,data) in that order.
+
+A solution for the sql.query method and other non-standard callbacks 
+is to create a wrapper function standardizing the callback, e.g.:
+
+     connection.prototype.q = function(sql, params, stdCallback){ 
+                 this.query(sql,params, function(err,rows,columns){ 
+                                     return stdCallback(err,{rows:rows,columns:columns}); 
+                             });
+     }
+
+usage:
+
+    try {
+      var result = wait.forMethod(connection, "q", options.sql, options.params); 
+      console.log(result.rows);
+      console.log(result.columns);
+    } 
+    catch(err) {
+       console.log(err);
+    }
+

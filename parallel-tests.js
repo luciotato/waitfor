@@ -12,7 +12,7 @@ wait.miliseconds = function(ms){
 }
 
 // -------------------
-// RUN TESTS (Fiber)--
+// RUN TESTS (in a Fiber, called from tests.js)
 // -------------------
 exports.runTests=function(hostname){
 
@@ -23,6 +23,9 @@ exports.runTests=function(hostname){
         var addresses = wait.for(dns.resolve4,hostname);
         console.log("addresses: ",JSON.stringify(addresses));
 
+        //----------------
+        //parallel map
+        //----------------
         console.log('wait.parallel.map(addresses, dns.reverse)');
         // get reverse addrs in parallel
         // launch a task for each item, calling fn(item,inx,arr)
@@ -35,7 +38,9 @@ exports.runTests=function(hostname){
             console.log(i,reverseAddrs[i]);
         };
 
-        //parallel filter.
+        //----------------
+        //parallel filter
+        //----------------
         console.log('wait.parallel.filter(addresses, likeIt(reverse)');
         // launch a fiber for each item, calling fn(item,inx,arr)
         var reverseLiked = wait.parallel.filter(addresses, function(item,inx){
@@ -66,5 +71,3 @@ exports.runTests=function(hostname){
     }
 };
 
-// MAIN
-//wait.launchFiber(exports.runTests,"google.com");
