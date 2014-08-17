@@ -211,8 +211,7 @@ function my_seq_function(arg,arg...){
 Parallel Extensions
 ----------
 
-wait.parallel.launch(functions:Array)
-----------------------
+###wait.parallel.launch(functions:Array)
      
 Note: must be in a Fiber
 
@@ -228,8 +227,8 @@ Note: must be in a Fiber
 - do not "returns" until all fibers complete
 - throws if error
 
-wait.parallel.map(arr:Array, mappedFn:function)
-----------------------
+
+###wait.parallel.map(arr:Array, mappedFn:function)
      
 Note: must be in a Fiber
 
@@ -245,8 +244,7 @@ Note: must be in a Fiber
 - throws if error
 
 
-wait.parallel.filter(arr:Array, itemTestFn:function returns boolean)
-----------------------
+###wait.parallel.filter(arr:Array, itemTestFn:function)
 
 Note: must be in a Fiber
 
