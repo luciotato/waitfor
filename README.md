@@ -219,20 +219,14 @@ Note: must be in a Fiber
 ####input: 
 * functions: Array = [func,arg,arg],[func,arg,arg],...
 
-it launch a fiber for each func
-
-the fiber do: 
-
-    resultArray[index] = func.apply(undefined,args)
+####actions:
+-launchs a fiber for each func
+-the fiber does `resultArray[index] = func.apply(undefined,args)`
 
 ####returns:
-
-array with a result for each function
-
-do not "returns" until all fibers complete
-
-throws if error
-
+- array with a result for each function
+- do not "returns" until all fibers complete
+- throws if error
 
 wait.parallel.map(arr:Array, mappedFn:function)
 ----------------------
@@ -240,21 +234,15 @@ wait.parallel.map(arr:Array, mappedFn:function)
 Note: must be in a Fiber
 
 ####input: 
-
 - arr: Array
 - mappedFn = function(item,index,arr) 
+-- mappedFn should return converted item. Since we're in a fiber
+-- mappedFn can use wait.for and also throw/try/catch
         
-mappedFn should return converted item. Since we're in a fiber
-mappedFn can use wait.for and also throw/try/catch
-        
-
 ####returns:
-
-array with converted items
-
-do not "returns" until all fibers complete
-
-throws if error
+- array with converted items
+- do not "returns" until all fibers complete
+- throws if error
 
 
 wait.parallel.filter(arr:Array, itemTestFn:function returns boolean)
@@ -265,18 +253,13 @@ Note: must be in a Fiber
 ####input: 
 - arr: Array
 - itemTestFn = function(item,index,arr) 
-
-itemTestFn should return true|false. Since we're in a fiber
-
-itemTestFn can use wait.for and also throw/try/catch
+-- itemTestFn should return true|false. Since we're in a fiber
+-- itemTestFn can use wait.for and also throw/try/catch
 
 ####returns 
-
-array with items where itemTestFn() returned true
-
-do not "returns" until all fibers complete
-
-throws if error
+- array with items where itemTestFn() returned true
+- do not "returns" until all fibers complete
+- throws if error
 
 
 -------------
