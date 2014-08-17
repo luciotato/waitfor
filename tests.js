@@ -94,10 +94,13 @@ function runTests(hostname){
     sequential_resolve_parallel_reverse(hostname);
     console.log('--------------------------------');
 
+    var pt = require('./parallel-tests')
+    pt.runTests();
+    
     //METHOD TEST (passing 'this' to the function)
     console.log(wait.forMethod(theAnswer,'think'));
     console.log(wait.forMethod(theWrongAnswer,'think'));
-    
+
     console.log(wait.forMethod(theAnswer,'pingPong','tomato'));
     console.log(wait.forMethod(theWrongAnswer,'pingPong','pera'));
 

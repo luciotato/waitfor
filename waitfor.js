@@ -6,7 +6,7 @@
 "use strict";
 var Fiber = require('fibers');
 
-var Wait = {
+var wait = {
 
     launchFiber: function(fn){ // wait.launchFiber(fn,arg1,arg2...)
 
@@ -34,7 +34,8 @@ var Wait = {
                                 return;
                             }
                             else {
-                                fiber.run();   //resume fiber after "yield"
+                                //resume fiber after "yield"
+                                fiber.run();   
                             }
                         };
 
@@ -58,7 +59,7 @@ var Wait = {
 
         var newargs=Array.prototype.slice.call(arguments,1); // remove function from args
 
-        return Wait.applyAndWait(null,fn,newargs); 
+        return wait.applyAndWait(null,fn,newargs); 
     }
 
     ,forMethod: function(obj,methodName){ // wait.forMethod(MyObj,'select',....)
@@ -67,9 +68,155 @@ var Wait = {
         if (!method) throw new Error('wait.forMethod: second argument must be the async method name (string)');
         
         var newargs=Array.prototype.slice.call(arguments,2); // remove obj and method name from args
-        return Wait.applyAndWait(obj,method,newargs);
+        return wait.applyAndWait(obj,method,newargs);
+    }
+
+};
+
+//parallel extensions
+/*
+Main Functions:
+
+wait.parallel.launch = function(functions)
+----------------------
+     
+     Note: must be in a Fiber
+    
+     input: 
+        functions: Array = [func,arg,arg],[func,arg,arg],...
+        
+        it launch a fiber for each func
+        the fiber do: resultArray[index] = func.apply(undefined,args)
+        
+     returns array with a result for each function
+     do not "returns" until all fibers complete
+
+     throws if error
+
+
+wait.parallel.map = function(arr,mappedFn)
+----------------------
+     
+     Note: must be in a Fiber
+    
+     input: 
+        arr: Array
+        mappedFn = function(item,index,arr) 
+        
+            mappedFn should return converted item. Since we're in a fiber
+            mappedFn can use wait.for and also throw/try/catch
+        
+
+     returns array with converted items
+     do not "returns" until all fibers complete
+
+     throws if error
+
+
+wait.parallel.filter = function(arr, itemTestFn)
+----------------------
+
+     Note: must be in a Fiber
+    
+     input: 
+        arr: Array
+        itemTestFn = function(item,index,arr) 
+        
+            itemTestFn should return true|false. Since we're in a fiber
+            itemTestFn can use wait.for and also throw/try/catch
+        
+     returns array with items where itemTestFn() returned true
+     do not "returns" until all fibers complete
+
+     throws if error
+
+*/
+
+
+wait.parallel = {};
+
+wait.parallel.taskJoiner=function(inx,context,err,data){
+    
+        if (context.finished) return;
+
+        context.count++;
+        //console.log('arrived result',inx,err,data,"result.count",context.count,"task",context.taskId);
+    
+        if (err) {
+            context.finished = true;
+            return context.finalCallback(err); //err in one of the fibers
+        }
+        else 
+            context.results[inx]=data;
+
+        if (context.count>=context.expected) { // all contexts arrived
+            //console.log("finall callback. elements:",context.count);
+            context.finished = true;
+            return context.finalCallback(null,context.results) ; // final callback
+        }
+};
+
+wait.parallel.fiberForItemBody = function(inx,context,functionAndArgs){
+    //console.log('fiber',inx,'calling mappedFunction',args);
+    try{
+        var data = functionAndArgs[0].apply(undefined,functionAndArgs.slice(1));
+        wait.parallel.taskJoiner(inx,context,null,data);
+    }
+    catch(err){
+        wait.parallel.taskJoiner(inx,context,err);
     }
 };
 
 
-module.exports = Wait; //export
+wait.parallel.async_launch = function(functions,finalCallback){
+    //
+    // functions:Array = [function,arg,arg..],[function,arg,arg,...],...
+    // call finalCallback array with results of each func, a fiber is launched for each item
+    // finalCallback is called when all functions complete
+    //
+    var context={results:[],count:0, expected:functions.length, finished:false, finalCallback:finalCallback};
+    if (context.expected===0) return finalCallback(null,context.results);
+
+    //launch a fiber for each item, 
+    // each item is an array containing function ptr and arguments
+    for (var i = 0; i < functions.length; i++) {
+        wait.launchFiber(wait.parallel.fiberForItemBody,i,context,functions[i]);
+    };
+};
+
+wait.parallel.launch = function(functions){
+    //
+    // functions = [function,arg,arg],[function,arg,arg],...
+    // returns array with results of each func, a fiber is launched for each item
+    // wait.parallel.returns when all functions complete
+    //
+    return wait.for(wait.parallel.async_launch, functions);
+};
+
+wait.parallel.map = function(arr,mappedFn){
+    // must be in a Fiber
+    //
+    // mappedFn = function(item,index,arr) returns converted item, a fiber is launched for each item
+    //
+    // convert arr into an array of functions + parameters
+    var functions = arr.map(function(item,inx){return [mappedFn,item,inx,arr]});
+    // launch a fiber for each item. wait until all fibers complete
+    return wait.parallel.launch(functions);
+}
+
+wait.parallel.filter = function(arr,itemTestFn){
+    // must be in a Fiber
+    //
+    // mappedFn = function(item,index,arr) returns true/false
+    //
+    var testResults = wait.parallel.map(arr,itemTestFn);
+
+    // create an array for each item where itemTestFn returned true
+    var filteredArr=[];
+    for (var i = 0; i < arr.length; i++) 
+        if (testResults[i]) filteredArr.push(arr[i]);
+
+    return filteredArr;
+}
+
+module.exports = wait; //export

@@ -208,10 +208,72 @@ function my_seq_function(arg,arg...){
 }
 ```
 
-Roadmap
---
+Extensions
+----------
 
- * Parallel execution, launch one fiber for each array item, waits until all fibers complete execution.
-   * **function wait.parallel.map(arr,fn)** return transformed array;
-   * **function wait.parallel.filter(arr,fn)** return filtered array;
-   * Status: working prototypes in [paralell-tests.js](http://github.com/luciotato/waitfor/blob/master/paralell-tests.js)
+wait.parallel.launch = function(functions)
+----------------------
+     
+Note: must be in a Fiber
+
+####input: 
+* functions: Array = [func,arg,arg],[func,arg,arg],...
+
+it launch a fiber for each func
+
+the fiber do: 
+
+    resultArray[index] = func.apply(undefined,args)
+
+####returns:
+
+array with a result for each function
+
+do not "returns" until all fibers complete
+
+throws if error
+
+
+wait.parallel.map = function(arr,mappedFn)
+----------------------
+     
+Note: must be in a Fiber
+
+####input: 
+
+- arr: Array
+- mappedFn = function(item,index,arr) 
+        
+mappedFn should return converted item. Since we're in a fiber
+mappedFn can use wait.for and also throw/try/catch
+        
+
+####returns:
+
+array with converted items
+
+do not "returns" until all fibers complete
+
+throws if error
+
+
+wait.parallel.filter = function(arr, itemTestFn)
+----------------------
+
+Note: must be in a Fiber
+
+####input: 
+- arr: Array
+- itemTestFn = function(item,index,arr) 
+
+itemTestFn should return true|false. Since we're in a fiber
+
+itemTestFn can use wait.for and also throw/try/catch
+
+####returns 
+
+array with items where itemTestFn() returned true
+
+do not "returns" until all fibers complete
+
+throws if error

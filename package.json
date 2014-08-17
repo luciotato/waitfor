@@ -1,6 +1,6 @@
 {
   "name": "wait.for",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "Sequential programming for node.js, end of callback hell",
   "author": {
     "name": "Lucio Tato",
