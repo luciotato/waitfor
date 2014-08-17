@@ -211,6 +211,7 @@ function my_seq_function(arg,arg...){
 Parallel Extensions
 ----------
 
+-------------
 ###wait.parallel.launch(functions:Array)
      
 Note: must be in a Fiber
@@ -228,6 +229,7 @@ Note: must be in a Fiber
 - throws if error
 
 
+-------------
 ###wait.parallel.map(arr:Array, mappedFn:function)
      
 Note: must be in a Fiber
@@ -243,7 +245,7 @@ Note: must be in a Fiber
 - do not "returns" until all fibers complete
 - throws if error
 
-
+-------------
 ###wait.parallel.filter(arr:Array, itemTestFn:function)
 
 Note: must be in a Fiber
@@ -264,6 +266,7 @@ Note: must be in a Fiber
 Parallel Usage Example: 
 see: 
 - [parallel-tests](/parallel-tests.js)
+-------------
 
 ##Notes on usage on non-standard callbacks. e.g.: connection.query from mysql
 
