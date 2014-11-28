@@ -217,7 +217,13 @@ Parallel Extensions
 Note: must be in a Fiber
 
 ####input: 
-* functions: Array = [func,arg,arg],[func,arg,arg],...
+* functions: Array = [[func,arg,arg],[func,arg,arg],...]
+
+wait.parallel.launch expects an array of [[func,arg,arg..],[func,arg,arg..],...] and then launches a fiber for each function call, in parallel, and waits for all the fibers to complete.
+
+The functions to be called ***should not be async functions***. 
+
+Each called sync function will be executed in it's own fiber, and this sync function should/can use `data=wait.for(..)` internally in order to call async functions.
 
 ####actions:
 -launchs a fiber for each func
