@@ -21,28 +21,6 @@ Advantages:
 
 ##NEWS
 
-----------------
-####March-2014 - LiteScript
-
-I've ported this functionality to [LiteScript](//github.com/luciotato/LiteScript).
-
-LiteScript is a  higly readable, compile to js language. LiteScript has type annotations, a compile-time validation phase, and catch common js errors and typos in object property names, speeding up development (you code faster) and saving hours of debugging over a mistyped property name. 
-[Try LiteScript online](http://luciotato.github.io/LiteScript_online_playground/playground)
-
-Here it is a sample of LiteScript Code, showing "yield until" (wait for async to complete) and "yield parallel" (launch in parallel, wait until all asyncs complete)
-
-#####get google.com IPs, then reverse DNS (in parallel)
-    global import dns, nicegen
-    nice function resolveAndParallelReverse
-        try
-            var addresses:array = yield until dns.resolve "google.com"
-            var results = yield parallel map addresses dns.reverse 
-            for each index,addr in addresses
-                print "#{addr} reverse: #{results[index]}"
-        catch err
-            print "caught:", err.stack
-    end nice function
-
 ---------------
 ###Aug-2013 - Wait.for-ES6 based on ES6-generators
 
