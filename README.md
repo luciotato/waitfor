@@ -21,7 +21,6 @@ Advantages:
 
 ##NEWS
 
----------------
 ###Aug-2013 - Wait.for-ES6 based on ES6-generators
 
 I've developed ***a version based on JavaScript upcoming ES6-Harmony generators***. It's not based on node-fibers.
@@ -51,7 +50,71 @@ var server = http.createServer(
 then,at *function handler(req,res)* and every function you call from there, 
 you'll be able to use wait.for(ayncFn...
 
-Examples:
+Basic Usage Example with Express.js
+----
+```
+var wait = require('wait.for');
+var express = require('express');
+var app = express();
+
+// in  a Fiber
+function handleGet(req, res){
+  res.send( wait.for(fs.readFile,'largeFile.html') );
+}
+
+app.get('/', function(req,res){
+      wait.launchFiber(handleGet, req, res); //handle in a fiber, keep node spinning
+});
+
+app.listen(3000);
+
+```
+
+Generic Usage: 
+------------
+```javascript
+var wait=require('wait.for');
+
+// launch a new fiber
+wait.launchFiber(my_sequential_function, arg,arg,...)
+
+// in a fiber.. We can wait for async functions
+function my_sequential_function(arg,arg...){
+    // call async_function(arg1), wait for result, return data
+    var myObj = wait.for(async_function, arg1); 
+    // call myObj.querydata(arg1,arg2), wait for result, return data
+    var myObjData = wait.forMethod(myObj,'queryData', arg1, arg2);
+    console.log(myObjData.toString());
+}
+```
+
+-------------
+##Notes on non-standard callbacks. e.g.: connection.query from mysql
+
+wait.for expects standardized callbacks. 
+A standardized callback always returns (err,data) in that order.
+
+A solution for the sql.query method and other non-standard callbacks 
+is to create a wrapper function standardizing the callback, e.g.:
+
+     connection.prototype.q = function(sql, params, stdCallback){ 
+                 this.query(sql,params, function(err,rows,columns){ 
+                                     return stdCallback(err,{rows:rows,columns:columns}); 
+                             });
+     }
+
+usage:
+
+    try {
+      var result = wait.forMethod(connection, "q", options.sql, options.params); 
+      console.log(result.rows);
+      console.log(result.columns);
+    } 
+    catch(err) {
+       console.log(err);
+    }
+
+More Examples:
 -
 
 DNS testing, *using pure node.js* (a little of callback hell):
@@ -148,43 +211,12 @@ Note: Exceptions will be catched as expected.
 db methods (db.select, db.execute) will be called with this=db
 
 
-Basic Usage Example with Express.js
-----
-```
-var wait = require('wait.for');
-var express = require('express');
-var app = express();
+-------------
 
-// in  a Fiber
-function handleGet(req, res){
-  res.send( wait.for(fs.readFile,'largeFile.html') );
-}
+##How does wait.launchFiber works?
 
-app.get('/', function(req,res){
-      wait.launchFiber(handleGet, req, res); //handle in a fiber, keep node spinning
-});
+`wait.launchFiber(genFn,param1,param2)` starts executing the `function genFn` *as a fiber-generator* until a "yield" (wait.for) is found, then `wait.launchFiber` execute the "yielded" value (a call to an async function), and links generator's "next" with the async callback(err,data), so when the async finishes and the callback is called, the fiber/generator "continues" after the `var x =wait.for(...)`.
 
-app.listen(3000);
-
-```
-
-Generic Usage: 
-------------
-```javascript
-var wait=require('wait.for');
-
-// launch a new fiber
-wait.launchFiber(my_seq_function, arg,arg,...)
-
-// fiber
-function my_seq_function(arg,arg...){
-    // call async_function(arg1), wait for result, return data
-    var myObj = wait.for(async_function, arg1); 
-    // call myObj.querydata(arg1,arg2), wait for result, return data
-    var myObjData = wait.forMethod(myObj,'queryData', arg1, arg2);
-    console.log(myObjData.toString());
-}
-```
 
 Parallel Extensions
 ----------
@@ -250,30 +282,3 @@ Note: must be in a Fiber
 Parallel Usage Example: 
 see: 
 - [parallel-tests](/parallel-tests.js)
-
--------------
-##Notes on usage on non-standard callbacks. e.g.: connection.query from mysql
-
-wait.for expects standardized callbacks. 
-A standardized callback always returns (err,data) in that order.
-
-A solution for the sql.query method and other non-standard callbacks 
-is to create a wrapper function standardizing the callback, e.g.:
-
-     connection.prototype.q = function(sql, params, stdCallback){ 
-                 this.query(sql,params, function(err,rows,columns){ 
-                                     return stdCallback(err,{rows:rows,columns:columns}); 
-                             });
-     }
-
-usage:
-
-    try {
-      var result = wait.forMethod(connection, "q", options.sql, options.params); 
-      console.log(result.rows);
-      console.log(result.columns);
-    } 
-    catch(err) {
-       console.log(err);
-    }
-
