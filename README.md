@@ -50,6 +50,29 @@ var server = http.createServer(
 then,at *function handler(req,res)* and every function you call from there, 
 you'll be able to use wait.for(ayncFn...
 
+Minimal running example
+----
+```
+var wait = require('wait.for');
+
+function anyStandardAsync(param, callback){
+    setTimeout( function(){
+                  callback(null,'hi '+param);
+        }, 5000);
+};
+
+function  testFunction(){
+    console.log('fiber start');
+    var result = wait.for(anyStandardAsync,'test');
+    console.log('function returned:', result);
+    console.log('fiber end');
+};
+
+console.log('app start');
+wait.launchFiber(testFunction);
+console.log('after launch');
+```
+
 Basic Usage Example with Express.js
 ----
 ```
