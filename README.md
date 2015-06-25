@@ -93,6 +93,10 @@ app.listen(3000);
 
 ```
 
+Cradle/couchdb Usage Example
+----
+see [cradle example](/examples/waitfor-cradle.js)
+ 
 Generic Usage: 
 ------------
 ```javascript
