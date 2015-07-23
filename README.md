@@ -116,7 +116,7 @@ function my_sequential_function(arg,arg...){
 ```
 
 -------------
-##Notes on non-standard callbacks. e.g.: connection.query from mysql
+##Notes on non-standard callbacks. e.g.: connection.query from mysql, database.prepare on node-sqlite3
 
 wait.for expects standardized callbacks. 
 A standardized callback always returns (err,data) in that order.
@@ -140,6 +140,23 @@ usage:
     catch(err) {
        console.log(err);
     }
+
+
+e.g.: node-sqlite3's [database.prepare](https://github.com/mapbox/node-sqlite3/wiki/API)
+
+```
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database(':memory:');
+
+db.prototype.prep = function(sql, stdCallback){ 
+             var stmt = this.prepare(sql, function(err){ 
+                                 return stdCallback(err, stmt); 
+             });
+ }
+
+var stmt = wait.forMethod (db, 'prep', "INSERT OR REPLACE INTO foo (a,b,c) VALUES (?,?,?)");
+```
+
 
 More Examples:
 -
