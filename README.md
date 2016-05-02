@@ -203,27 +203,27 @@ Database example (pseudocode)
 var db = require("some-db-abstraction");
 
 function handleWithdrawal(req,res){  
-	try {
-		var amount=req.param("amount");
-		db.select("* from sessions where session_id=?",req.param("session_id"),function(err,sessiondata) {
-			if (err) throw err;
-			db.select("* from accounts where user_id=?",sessiondata.user_ID),function(err,accountdata) {
-				if (err) throw err;
-					if (accountdata.balance < amount) throw new Error('insufficient funds');
-					db.execute("withdrawal(?,?)",accountdata.ID,req.param("amount"), function(err,data) {
-						if (err) throw err;
-						res.write("withdrawal OK, amount: "+ req.param("amount"));
-						db.select("balance from accounts where account_id=?", accountdata.ID,function(err,balance) {
-							if (err) throw err;
-							res.end("your current balance is "  + balance.amount);
-						});
-    				});
-				});
-			});
-		}
-		catch(err) {
-			res.end("Withdrawal error: "  + err.message);
-	}
+    try {
+        var amount=req.param("amount");
+        db.select("* from sessions where session_id=?",req.param("session_id"),function(err,sessiondata) {
+            if (err) throw err;
+            db.select("* from accounts where user_id=?",sessiondata.user_ID),function(err,accountdata) {
+                if (err) throw err;
+                if (accountdata.balance < amount) throw new Error('insufficient funds');
+                db.execute("withdrawal(?,?)",accountdata.ID,req.param("amount"), function(err,data) {
+                    if (err) throw err;
+                    res.write("withdrawal OK, amount: "+ req.param("amount"));
+                    db.select("balance from accounts where account_id=?", accountdata.ID,function(err,balance) {
+                        if (err) throw err;
+                        res.end("your current balance is "  + balance.amount);
+                    });
+                });
+            });
+        });
+    }
+    catch(err) {
+        res.end("Withdrawal error: "  + err.message);
+    }
 }
 ```
 Note: The above code, although it looks like it will catch the exceptions, **it will not**. 
@@ -236,19 +236,20 @@ to respond to the user. If somebody like to fix this example... be my guest.
 var db = require("some-db-abstraction"), wait=require('wait.for');
 
 function handleWithdrawal(req,res){  
-	try {
-		var amount=req.param("amount");
-		sessiondata = wait.forMethod(db,"select","* from session where session_id=?",req.param("session_id"));
-		accountdata = wait.forMethod(db,"select","* from accounts where user_id=?",sessiondata.user_ID);
-		if (accountdata.balance < amount) throw new Error('insufficient funds');
-		wait.forMethod(db,"execute","withdrawal(?,?)",accountdata.ID,req.param("amount"));
-		res.write("withdrawal OK, amount: "+ req.param("amount"));
-		balance = wait.forMethod(db,"select","balance from accounts where account_id=?", accountdata.ID);
-		res.end("your current balance is "  + balance.amount);
-		}
-	catch(err) {
-		res.end("Withdrawal error: "  + err.message);
-}  
+    try {
+        var amount=req.param("amount");
+        sessiondata = wait.forMethod(db,"select","* from session where session_id=?",req.param("session_id"));
+        accountdata = wait.forMethod(db,"select","* from accounts where user_id=?",sessiondata.user_ID);
+        if (accountdata.balance < amount) throw new Error('insufficient funds');
+        wait.forMethod(db,"execute","withdrawal(?,?)",accountdata.ID,req.param("amount"));
+        res.write("withdrawal OK, amount: "+ req.param("amount"));
+        balance = wait.forMethod(db,"select","balance from accounts where account_id=?", accountdata.ID);
+        res.end("your current balance is "  + balance.amount);
+    }
+    catch(err) {
+        res.end("Withdrawal error: "  + err.message);
+    }
+}
 ```
 
 Note: Exceptions will be catched as expected.
