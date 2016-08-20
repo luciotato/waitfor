@@ -31,8 +31,9 @@ I've developed ***a version based on JavaScript upcoming ES6-Harmony generators*
 
 Install: 
 ----
-        npm install wait.for
-
+```bash
+npm install wait.for --save
+```
 
 Proper Use:
 ----
@@ -40,8 +41,8 @@ You need to be in a Fiber to be able to use wait.for. The ideal place to launch 
 is when a request arrives, to handle it:
 
 ```javascript
-var server = http.createServer(
-  function(req, res){
+const server = http.createServer(
+  (req, res) => {
     console.log('req!');
     wait.launchFiber(handler,req,res); //handle in a fiber, keep node spinning
   }).listen(8000);
@@ -52,8 +53,8 @@ you'll be able to use wait.for(ayncFn...
 
 Minimal running example
 ----
-```
-var wait = require('wait.for');
+```js
+const wait = require('wait.for');
 
 function anyStandardAsync(param, callback){
     setTimeout( function(){
@@ -75,7 +76,7 @@ console.log('after launch');
 
 Basic Usage Example with Express.js
 ----
-```
+```js
 var wait = require('wait.for');
 var express = require('express');
 var app = express();
@@ -86,11 +87,10 @@ function handleGet(req, res){
 }
 
 app.get('/', function(req,res){
-      wait.launchFiber(handleGet, req, res); //handle in a fiber, keep node spinning
+  wait.launchFiber(handleGet, req, res); //handle in a fiber, keep node spinning
 });
 
 app.listen(3000);
-
 ```
 
 Cradle/couchdb Usage Example
@@ -100,7 +100,7 @@ see [cradle example](/examples/waitfor-cradle.js)
 Generic Usage: 
 ------------
 ```javascript
-var wait=require('wait.for');
+const wait=require('wait.for');
 
 // launch a new fiber
 wait.launchFiber(my_sequential_function, arg,arg,...)
@@ -123,28 +123,27 @@ A standardized callback always returns (err,data) in that order.
 
 A solution for the sql.query method and other non-standard callbacks 
 is to create a wrapper function standardizing the callback, e.g.:
-
+```js
      connection.prototype.q = function(sql, params, stdCallback){ 
                  this.query(sql,params, function(err,rows,columns){ 
                                      return stdCallback(err,{rows:rows,columns:columns}); 
                              });
      }
-
+```
 usage:
-
-    try {
-      var result = wait.forMethod(connection, "q", options.sql, options.params); 
-      console.log(result.rows);
-      console.log(result.columns);
-    } 
-    catch(err) {
-       console.log(err);
-    }
-
-
+```js
+  try {
+  var result = wait.forMethod(connection, "q", options.sql, options.params); 
+  console.log(result.rows);
+  console.log(result.columns);
+} 
+catch(err) {
+  console.log(err);
+}
+```
 e.g.: node-sqlite3's [database.prepare](https://github.com/mapbox/node-sqlite3/wiki/API)
 
-```
+```js
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database(':memory:');
 
