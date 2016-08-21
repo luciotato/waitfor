@@ -31,8 +31,8 @@ I've developed ***a version based on JavaScript upcoming ES6-Harmony generators*
 
 Install: 
 ----
-```bash
-npm install wait.for --save
+```
+npm install wait.for
 ```
 
 Proper Use:
@@ -40,9 +40,9 @@ Proper Use:
 You need to be in a Fiber to be able to use wait.for. The ideal place to launch a fiber
 is when a request arrives, to handle it:
 
-```javascript
-const server = http.createServer(
-  (req, res) => {
+```js
+var server = http.createServer(
+  function(req, res){
     console.log('req!');
     wait.launchFiber(handler,req,res); //handle in a fiber, keep node spinning
   }).listen(8000);
@@ -54,7 +54,7 @@ you'll be able to use wait.for(ayncFn...
 Minimal running example
 ----
 ```js
-const wait = require('wait.for');
+var wait = require('wait.for');
 
 function anyStandardAsync(param, callback){
     setTimeout( function(){
@@ -99,8 +99,8 @@ see [cradle example](/examples/waitfor-cradle.js)
  
 Generic Usage: 
 ------------
-```javascript
-const wait=require('wait.for');
+```js
+var wait=require('wait.for');
 
 // launch a new fiber
 wait.launchFiber(my_sequential_function, arg,arg,...)
@@ -161,7 +161,7 @@ More Examples:
 -
 
 DNS testing, *using pure node.js* (a little of callback hell):
-```javascript
+```js
 var dns = require("dns");
     
 function test(){ 
@@ -198,7 +198,7 @@ wait.launchFiber(test);
 Database example (pseudocode)
 --
 *using pure node.js* (a callback hell):
-```javascript
+```js
 var db = require("some-db-abstraction");
 
 function handleWithdrawal(req,res){  
@@ -231,7 +231,7 @@ to respond to the user. If somebody like to fix this example... be my guest.
 
 
 ***THE SAME CODE***, using **wait.for** (sequential logic - sequential programming):
-```javascript
+```js
 var db = require("some-db-abstraction"), wait=require('wait.for');
 
 function handleWithdrawal(req,res){  
